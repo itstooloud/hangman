@@ -13,24 +13,48 @@ When the program first loads, add in an option that allows you to open one of yo
 =end
 
 #there are 61,304 words in the file.
+require './show_word'
+require './solved'
 
-words = []
+def secret_word
+	words = []
 
-dict = File.open("5desk.txt")
-#fill up our words array with everything from the dictionary between 5 and 12 characters
-dict.each do |line|
-	#the 'strip' function removes the \r\n from the words
-	words << line.strip if line.strip.length.between?(5,12)
+	dict = File.open("5desk.txt")
+	#fill up our words array with everything from the dictionary between 5 and 12 characters
+	dict.each do |line|
+		#the 'strip' function removes the \r\n from the words
+		words << line.strip if line.strip.length.between?(5,12)
+	end
+
+	secret_word = words[rand(words.length)].upcase #.split("").to_a
+	
 end
 
-#find a random secret word in the file
-secret_word = words[rand(words.length)].split("").to_a
-#p secret_word
+
+class Player
+	attr_accessor :name, :guesses
+	def initialize(name)
+		@name = name
+		@guesses = []
+	end
+end
+
+
+class Game
+	attr_accessor :word, :player
+
+	def initialize
+		@word = secret_word
+		@player = Player.new("Burt")
+	end
+
+end
+
 
 #Player gets 6 guesses, one each for head, torso, 2 arms and 2 legs
-def render_score(hits)
+def render_score(misses)
 	score_display = ""
-	hits.times do
+	misses.times do
 		score_display << "*"
 	end
 	
@@ -38,7 +62,71 @@ def render_score(hits)
 	
 end
 
-puts render_score(2)
+def play_game
+	
+	game = Game.new
+	#puts game.word
+	game_over = false
+	misses = 0
+	puts "I'm thinking of a word with " + game.word.length.to_s + " letters."
+	puts show_word(game.player.guesses, game.word)
+	
+	while !game_over 
+
+			puts "Guess a letter! >>"
+			guess = gets.chomp.upcase
+
+			while game.player.guesses.include?(guess)
+				puts "You've already guessed that!"
+				puts "Guess a letter! >>"
+				guess = gets.chomp.upcase
+			end
+
+			while guess.length > 1
+				puts "That's too many letters!"
+				puts "Guess a letter! >>"
+				guess = gets.chomp.upcase
+			end
+
+
+			game.player.guesses << guess
+
+			unless game.word.include? guess
+				misses +=1
+			end
+
+			if solved?(game.player.guesses, game.word)
+				game_over = true
+				puts "YOU SOLVED IT!"
+				puts game.word + "!"
+				break
+			end
+
+			if misses == 6
+				game_over = true
+				puts "Oh no! You're out of guesses and now you're hanged!"
+				puts "The word was " + game.word + "!"
+				break
+			end
+
+			puts show_word(game.player.guesses, game.word) + "   " + render_score(misses)
+			puts render_score(misses)
+
+			#turns +=1
+	end
+
+
+end
+
+
+
+play_game
+
+#puts render_score(2)
+#puts secret_word
+
+
+
 
 
 
