@@ -11,3 +11,56 @@ When the program first loads, add in an option that allows you to open one of yo
 
 	
 =end
+
+#there are 61,304 words in the file.
+
+words = []
+
+dict = File.open("5desk.txt")
+#fill up our words array with everything from the dictionary between 5 and 12 characters
+dict.each do |line|
+	#the 'strip' function removes the \r\n from the words
+	words << line.strip if line.strip.length.between?(5,12)
+end
+
+#find a random secret word in the file
+secret_word = words[rand(words.length)].split("").to_a
+#p secret_word
+
+#Player gets 6 guesses, one each for head, torso, 2 arms and 2 legs
+def render_score(hits)
+	score_display = ""
+	hits.times do
+		score_display << "*"
+	end
+	
+	"Limbs missing: " + score_display.ljust(6, "-")
+	
+end
+
+puts render_score(2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
